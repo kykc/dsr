@@ -18,7 +18,8 @@ NOTE: you should have working NuGet for this to work
 
 ### Windows using msbuild
 
-coming soon
+* Can be built by VS2012+ or SharpDevelop 4.4.0+, MonoDevelop should be fine too, but this is unconfirmed.
+* Can be built manually using NuGet.exe and msbuild
 
 ## Usage
 ```
