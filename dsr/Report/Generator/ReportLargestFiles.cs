@@ -14,7 +14,9 @@ namespace dsr.Report.Generator
 		}
 		
 		private uint _limit = 10;
+		#pragma warning disable 0414
 		private ReportRequest _rq;
+		#pragma warning restore 0414
 		
 		private ReportResponse _result = new ReportResponse();
 

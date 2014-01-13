@@ -4,6 +4,8 @@ using System.Linq;
 using System.Collections.Generic;
 using dsr.Report;
 
+// TODO: implement transparent build procedures for both linux and windows. Include launcher script generation for linux
+
 namespace dsr
 {
 	static internal class Program
@@ -23,7 +25,7 @@ namespace dsr
 			
 			var p = new NDesk.Options.OptionSet() {
 				{"l|limit=", v => limit = InOut.parse(v, limit)},
-				{"h|?|help", v => help = v != null},
+				{"h|?|help|version", v => help = v != null},
 				{"enable-pause", v => pause = v != null},
 				{"disable-pause", v => pause = v == null},
 				{"top-files", v => largestFiles = v != null},
@@ -58,9 +60,11 @@ namespace dsr
 					mk("--enable-totals, --disable-totals", "toggles totals section (default: on)"),
 					mk("--raw-file-length", "output file/directory size in bytes"),
 					mk("--license", "shows license"),
-					mk("--help, -h, /?", "this help page")
+					mk("--help, -h, --version, /?", "this help page")
 				};
 				
+				Console.WriteLine("DSR: simple disk usage reporter");
+				Console.WriteLine("Version: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
 				Console.WriteLine("Usage: dsr [options] path");
 				Console.WriteLine("");
 				Console.WriteLine("general options:");
@@ -117,8 +121,8 @@ namespace dsr
 				roller(subject, reports, filters, trace);
 				var results = reports.Select(x => x.getResult()).ToList();
 				
-				fileSizeColumnWidth = results.Select(x => x.Members).Concat().Max(x => InOut.humanizeFilesize(x.Size, !rq.RawSizeFormat).Length);
-				totalCaptionColumnWidth = results.Select(x => x.Totals).Concat().Max(x => x.Key.Length);
+				fileSizeColumnWidth = results.Select(x => x.Members).Concat().Select(x => InOut.humanizeFilesize(x.Size, !rq.RawSizeFormat).Length).DefaultIfEmpty(0).Max();
+				totalCaptionColumnWidth = results.Select(x => x.Totals).Concat().Select(x => x.Key.Length).DefaultIfEmpty(0).Max();
 				results.ForEach(outputMembers);
 				
 				if (includeTotals) {
