@@ -16,7 +16,7 @@ xbuild /p:configuration=Release dsr.sln
 ```
 NOTE: you should have working NuGet for this to work
 
-### Windows using msbuild
+### Windows
 
 * Can be built by VS2012+ or SharpDevelop 4.4.0+, MonoDevelop should be fine too, but this is unconfirmed atm
 * Can be built manually using NuGet.exe and msbuild
