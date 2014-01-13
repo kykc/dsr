@@ -9,11 +9,11 @@ Works both on linux (mono >= 2.10.8.1) and windows (.net >= 4.0)
 ## Building
 
 ### GNU/Linux using xbuild
-
+```
 cd DSR_PROJECT_PATH
 mono --runtime=v4.0 NuGet.exe restore
 xbuild /p:configuration=Release dsr.sln
-
+```
 NOTE: you should have working NuGet for this to work
 
 ### Windows using msbuild
@@ -21,7 +21,7 @@ NOTE: you should have working NuGet for this to work
 coming soon
 
 ## Usage
-
+```
 Usage: dsr [options] path
 
 general options:
@@ -34,3 +34,4 @@ general options:
   --raw-file-length                  output file/directory size in bytes
   --license                          shows license
   --help, -h, /?                     this help page
+```
