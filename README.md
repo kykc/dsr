@@ -8,7 +8,7 @@ Works both on linux (mono >= 2.10.8.1) and windows (.net >= 4.0)
 
 ## Building
 
-# GNU/Linux using xbuild
+### GNU/Linux using xbuild
 
 cd DSR_PROJECT_PATH
 mono --runtime=v4.0 NuGet.exe restore
@@ -16,7 +16,7 @@ xbuild /p:configuration=Release dsr.sln
 
 NOTE: you should have working NuGet for this to work
 
-# Windows using msbuild
+### Windows using msbuild
 
 coming soon
 
