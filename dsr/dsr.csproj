@@ -36,7 +36,7 @@
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <StartAction>Project</StartAction>
-    <StartArguments>--disable-totals "E:\Temp\1974 - Rampant"</StartArguments>
+    <StartArguments>--top-file-count --nodef "E:\Temp\1977 - Little Queen"</StartArguments>
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -70,6 +70,7 @@
     <Compile Include="Report\Filter\FilterRealFiles.cs" />
     <Compile Include="Report\Generator\ReportLargestDirectories.cs" />
     <Compile Include="Report\Generator\ReportLargestFiles.cs" />
+    <Compile Include="Report\Generator\ReportTopFileCount.cs" />
     <Compile Include="Report\Generator\ReportTotals.cs" />
     <Compile Include="Report\Interface.cs" />
     <Compile Include="Report\StateModel\ReportRequest.cs" />

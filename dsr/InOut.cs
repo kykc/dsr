@@ -33,6 +33,11 @@ namespace dsr
         	return value.ToString(pow==0 ? "F0" : "F" + PRECISION.ToString()) + "" + Units[(int)pow];
 		}
 		
+		public static string humanizeCount(ulong count, bool human = true)
+		{
+			return count.ToString();
+		}
+		
 		public static string humanizeSeconds(TimeSpan t)
 		{
 			string answer = string.Format("{0:D2}m:{1:D2}s:{2:D3}ms", 

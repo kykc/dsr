@@ -12,16 +12,18 @@ namespace dsr
 	{			
 		public static void Main(string[] args)
 		{
+			bool defaultPause = !Util.IsUnix;
 			string subject = null;
 			uint limit = 10;
 			bool help = false;
-			bool pause = !Util.IsUnix;
+			bool pause = defaultPause;
 			bool defaults = true;
 			bool largestFiles = false;
 			bool largestDirs = false;
 			bool includeTotals = true;
 			bool rawSize = false;
 			bool license = false;
+			bool fileCountReport = false;
 			
 			var p = new NDesk.Options.OptionSet() {
 				{"l|limit=", v => limit = InOut.parse(v, limit)},
@@ -34,6 +36,7 @@ namespace dsr
 				{"enable-totals", v => includeTotals = v != null},
 				{"disable-totals", v => includeTotals = v == null},
 				{"raw-file-length", v => rawSize = v != null},
+				{"top-file-count", v => fileCountReport = v != null},
 				{"license", v => license = v != null},
 			};
 			
@@ -53,11 +56,12 @@ namespace dsr
 				
 				var generalOptionsHelp = new List<KeyValuePair<string, string>> {
 					mk("--limit=LIMIT, -l LIMIT", "number of lines per report (default: 10)"),
-					mk("--enable-pause, --disable-pause", "press any key prompt"),
+					mk("--enable-pause, --disable-pause", "press any key prompt (default: " + (defaultPause ? "enabled" : "disabled") + ")"),
 					mk("--nodef", "disables default set of reports"),
-					mk("--top-files", "enables largest files report"),
-					mk("--top-dirs", "enables largest directories report"),
-					mk("--enable-totals, --disable-totals", "toggles totals section (default: on)"),
+					mk("--top-files", "enables largest files report (default: on)"),
+					mk("--top-dirs", "enables largest directories report (default: on)"),
+					mk("--top-file-count", "enables top file count report (default: off)"),
+					mk("--enable-totals, --disable-totals", "toggles totals section (default: enabled)"),
 					mk("--raw-file-length", "output file/directory size in bytes"),
 					mk("--license", "shows license"),
 					mk("--help, -h, --version, /?", "this help page")
@@ -98,6 +102,7 @@ namespace dsr
 				
 				_insrep(defaults || largestFiles, () => new Report.Generator.ReportLargestFiles(rq, limit));
 				_insrep(defaults || largestDirs, () => new Report.Generator.ReportLargestDirectories(rq, limit));
+				_insrep(fileCountReport, () => new Report.Generator.ReportTopFileCount(rq, limit));
 				_insrep(includeTotals, () => new Report.Generator.ReportTotals(rq));
 				
 				int fileSizeColumnWidth = 0;
@@ -110,7 +115,7 @@ namespace dsr
 				Action<Report.StateModel.ReportResponse> outputMembers = (resp) => {
 					if (resp.Members.Count > 0) {
 						InOut.outputStdSection(resp.Name, resp.Members.Select(x => {
-							return String.Format("{1," + (fileSizeColumnWidth).ToString() + "} {2}", "", InOut.humanizeFilesize(x.Size, !rq.RawSizeFormat), x.Path);
+						return String.Format("{1," + (fileSizeColumnWidth).ToString() + "} {2}", "", x.FormattedNumber, x.Path);
 						}));
 					}
 				};
@@ -121,7 +126,7 @@ namespace dsr
 				roller(subject, reports, filters, trace);
 				var results = reports.Select(x => x.getResult()).ToList();
 				
-				fileSizeColumnWidth = results.Select(x => x.Members).Concat().Select(x => InOut.humanizeFilesize(x.Size, !rq.RawSizeFormat).Length).DefaultIfEmpty(0).Max();
+				fileSizeColumnWidth = results.Select(x => x.Members).Concat().Select(x => x.FormattedNumber.Length).DefaultIfEmpty(0).Max();
 				totalCaptionColumnWidth = results.Select(x => x.Totals).Concat().Select(x => x.Key.Length).DefaultIfEmpty(0).Max();
 				results.ForEach(outputMembers);
 				

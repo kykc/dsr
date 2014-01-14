@@ -6,25 +6,17 @@ namespace dsr.Report.StateModel
 	class ReportResponseMember
 	{
 		public string Path {get;set;}
-		public ulong Size {get;set;}
-		public string Comment {get;set;}
+		public string FormattedNumber {get;set;}
 		
-		public static ReportResponseMember make(FileInfo f)
+		public ReportResponseMember(string path, string formattedNumber)
 		{
-			var obj = new ReportResponseMember();
-			obj.Path = f.FullName;
-			obj.Size = (ulong)f.Length;
-			
-			return obj;
+			Path = path;
+			FormattedNumber = formattedNumber;
 		}
 		
-		public static ReportResponseMember make(DirectoryInfo d, ulong size)
+		public static ReportResponseMember make(FileInfo f, bool humanize = true)
 		{
-			var obj = new ReportResponseMember();
-			obj.Path = d.FullName;
-			obj.Size = size;
-			
-			return obj;
+			return new ReportResponseMember(f.FullName, InOut.humanizeFilesize((ulong)f.Length, humanize));
 		}
 	}
 }

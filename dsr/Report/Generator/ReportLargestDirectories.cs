@@ -47,7 +47,7 @@ namespace dsr.Report.Generator
 				.OrderByDescending(pair => pair.Value)
 				.Skip(1)
 				.Take((int)_limit)
-				.Select(x => ReportResponseMember.make(new DirectoryInfo(x.Key), x.Value))
+				.Select(x => new ReportResponseMember(x.Key, InOut.humanizeFilesize(x.Value, !_rq.RawSizeFormat)))
 				.ToList();
 			
 			_result.Name = "Largest directories";

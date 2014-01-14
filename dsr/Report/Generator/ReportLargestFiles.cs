@@ -2,6 +2,7 @@
 using dsr.Report.StateModel;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace dsr.Report.Generator
 {
@@ -14,20 +15,17 @@ namespace dsr.Report.Generator
 		}
 		
 		private uint _limit = 10;
-		#pragma warning disable 0414
 		private ReportRequest _rq;
-		#pragma warning restore 0414
+		private List<FileInfo> _db = new List<FileInfo>();
 		
 		private ReportResponse _result = new ReportResponse();
 
 		public void handleFile(FileInfo f)
 		{
-			var file = ReportResponseMember.make(f);
-
-			_result.Members.Add(file);
+			_db.Add(f);
 			
-			_result.Members = _result.Members
-				.OrderByDescending(x => x.Size)
+			_db = _db
+				.OrderByDescending(x => x.Length)
 				.Take((int)_limit)
 				.ToList();
 		}
@@ -39,6 +37,9 @@ namespace dsr.Report.Generator
 		public ReportResponse getResult()
 		{			
 			_result.Name = "Largest files";
+			_result.Members = _db
+				.Select(x => ReportResponseMember.make(x, !_rq.RawSizeFormat))
+				.ToList();
 			
 			return _result;
 		}
