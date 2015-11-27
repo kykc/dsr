@@ -1,6 +1,6 @@
 ﻿## Description
 
-Simple disk usage reporter
+Simple disk usage reporter (just an education task for myself, trying to write something cross-platform on .NET)
 
 ## Dependencies
 
