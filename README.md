@@ -2,24 +2,9 @@
 
 Simple disk usage reporter (just an education task for myself, trying to write something cross-platform on .NET)
 
-## Dependencies
-
-Works both on linux (mono >= 2.10.8.1) and windows (.net >= 4.0)
-
 ## Building
 
-### GNU/Linux using xbuild
-```
-cd DSR_PROJECT_PATH
-mono --runtime=v4.0 NuGet.exe restore
-xbuild /p:configuration=Release dsr.sln
-```
-NOTE: you should have working NuGet for this to work
-
-### Windows
-
-* Can be built by VS2012+ or SharpDevelop 4.4.0+, MonoDevelop should be fine too, but this is unconfirmed atm
-* Can be built manually using NuGet.exe and msbuild
+Can be built using `dotnet` cli or Visual Studio
 
 ## Usage
 ```
