@@ -1,10 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using dsr.Report;
-
-// TODO: implement transparent build procedures for both linux and windows. Include launcher script generation for linux
 
 namespace dsr
 {
@@ -13,21 +10,21 @@ namespace dsr
 		public static void Main(string[] args)
 		{
 			bool defaultPause = !Util.IsUnix;
-			string subject = null;
+			string? subject = null;
 			uint limit = 10;
-			bool help = false;
 			bool pause = defaultPause;
 			bool defaults = true;
 			bool largestFiles = false;
 			bool largestDirs = false;
 			bool includeTotals = true;
 			bool rawSize = false;
-			bool license = false;
 			bool fileCountReport = false;
+			bool helpTokenFound = false;
+			bool licenseTokenFound = false;
 			
 			var p = new NDesk.Options.OptionSet() {
 				{"l|limit=", v => limit = InOut.parse(v, limit)},
-				{"h|?|help|version", v => help = v != null},
+				{"h|?|help|version", v => helpTokenFound = v != null},
 				{"enable-pause", v => pause = v != null},
 				{"disable-pause", v => pause = v == null},
 				{"top-files", v => largestFiles = v != null},
@@ -37,21 +34,16 @@ namespace dsr
 				{"disable-totals", v => includeTotals = v == null},
 				{"raw-file-length", v => rawSize = v != null},
 				{"top-file-count", v => fileCountReport = v != null},
-				{"license", v => license = v != null},
+				{"license", v => licenseTokenFound = v != null},
 			};
 			
 			List<string> extraArgs = p.Parse(args);
 			
 			subject = InOut.parseSubject(extraArgs);
 			
-			if (subject == null) {
-				help = true;
-			}
-			
-			if (license) {
+			if (licenseTokenFound) {
 				Console.WriteLine(InOut.getLicenseText());
-			}
-			else if (help) {
+			} else if (helpTokenFound || subject == null) {
 				Func<string, string, KeyValuePair<string, string>> mk = (c, d) => new KeyValuePair<string, string>(c, d);
 				
 				var generalOptionsHelp = new List<KeyValuePair<string, string>> {
@@ -68,7 +60,7 @@ namespace dsr
 				};
 				
 				Console.WriteLine("DSR: simple disk usage reporter");
-				Console.WriteLine("Version: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
+				Console.WriteLine("Version: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.Map(x => x.ToString(), "Unknown"));
 				Console.WriteLine("Usage: dsr [options] path");
 				Console.WriteLine("");
 				Console.WriteLine("general options:");
@@ -83,12 +75,8 @@ namespace dsr
 					
 					Console.WriteLine(String.Format("{0,2}{1," + cmdWidth + "}  {2," + descriptionWidth + "}", "", sdef.Key, sdef.Value));
 				});
-			}
-			else {
-				var rq = new Report.StateModel.ReportRequest();
-				rq.Subject = subject;
-				rq.Timer = new System.Diagnostics.Stopwatch();
-				rq.RawSizeFormat = rawSize;
+			} else {
+				var rq = new Report.StateModel.ReportRequest(subject, new System.Diagnostics.Stopwatch(), rawSize);
 				
 				var trace = new Report.StateModel.SimpleTrace();
 				

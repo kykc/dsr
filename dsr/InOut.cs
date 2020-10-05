@@ -62,9 +62,9 @@ namespace dsr
 			return UInt32.TryParse(s, out temp) ? temp : def;
 		}
 		
-		public static string parseSubject(List<string> args)
+		public static string? parseSubject(List<string> args)
 		{
-			string result = null;
+			string? result = null;
 			
 			if (args.Count == 1)
 			{

@@ -10,7 +10,7 @@ namespace dsr
 	{
 		public static Action<string, List<IReportGenerator>, List<IReportFilter>, ITrace> make()
 		{
-			Action<string, List<IReportGenerator>, List<IReportFilter>, ITrace> self = null;
+			Action<string, List<IReportGenerator>, List<IReportFilter>, ITrace> self = null!;
 			
 			self = (subject, reports, filters, trace) =>
 			{
