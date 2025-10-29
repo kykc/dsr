@@ -25,9 +25,7 @@ namespace dsr.Report.Generator
 			
 			while (dir != null && dir.Length >= _rq.Subject.Length)
 			{
-				_hash.TryAdd(dir, 0);
-				
-				_hash[dir] += (ulong)f.Length;
+				_hash.AddOrUpdate(dir, (ulong)f.Length, (k, v) => v + (ulong)f.Length);
 				
 				dir = new DirectoryInfo(dir).Parent?.FullName;
 			}

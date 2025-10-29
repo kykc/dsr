@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.IO;
+using System.Threading;
 using dsr.Report;
 
 namespace dsr.Report.Generator
@@ -27,10 +28,7 @@ namespace dsr.Report.Generator
 				return;
 			}
 
-			if (!_hash.TryAdd(parent, 1))
-			{
-				_hash[parent] += 1;
-			}
+			_hash.AddOrUpdate(parent, 1,  (k, v) => v + 1);
 		}
 		
 		public void HandleDirectory(System.IO.DirectoryInfo d)
