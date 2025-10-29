@@ -1,0 +1,20 @@
+name: build choco package
+run-name: ${{ gitea.actor }} is building dsr
+on: [push]
+
+jobs:
+  build-choco:
+    runs-on: automatl-net8-ubuntu2204
+    if: gitea.ref == 'refs/heads/master'
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: build with dotnet
+        run: |
+          pushd dsr && dotnet publish -c Release -r win-x64 -f net8.0 --self-contained -t:PackChoco && popd
+      - name: rename nupkg
+        run: |
+          mv dsr/dsr.portable*.nupkg dsr.portable.nupkg
+      - name: upload nupkg to choco repo
+        run: |
+          choco push dsr.portable.nupkg --source https://${{ secrets.CI_USER }}:${{ secrets.CI_TOKEN }}@${{ vars.AU_GITEA_HOST }}/api/packages/audist/nuget/index.json --api-key ${{ secrets.CI_TOKEN }}
