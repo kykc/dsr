@@ -6,24 +6,24 @@ namespace dsr.Report
 {
 	interface IReportGenerator
 	{
-		void handleFile(FileInfo f);
-		void handleDirectory(DirectoryInfo d);
+		void HandleFile(FileInfo f);
+		void HandleDirectory(DirectoryInfo d);
 		
-		StateModel.ReportResponse getResult();
+		StateModel.ReportResponse GetResult();
 	}
 	
 	interface IReportFilter
 	{
-		bool filterFile(FileInfo f);
-		bool filterDirectory(DirectoryInfo d);
+		bool FilterFile(FileInfo f);
+		bool FilterDirectory(DirectoryInfo d);
 	}
 	
 	interface ITrace
 	{
-		void pushError(string error);
-		void pushWarning(string warning);
-		void pushInfo(string info);
+		void Error(string error);
+		void Warning(string warning);
+		void Log(string info);
 		
-		List<string> Warning {get;}
+		IEnumerable<string> Warnings { get; }
 	}
 }

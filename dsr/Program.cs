@@ -5,11 +5,11 @@ using dsr.Report;
 
 namespace dsr
 {
-	static internal class Program
+	internal static class Program
 	{			
 		public static void Main(string[] args)
 		{
-			bool defaultPause = !Util.IsUnix;
+			bool defaultPause = false;
 			string? subject = null;
 			uint limit = 10;
 			bool pause = defaultPause;
@@ -21,9 +21,10 @@ namespace dsr
 			bool fileCountReport = false;
 			bool helpTokenFound = false;
 			bool licenseTokenFound = false;
+			bool parallelProcessing = false;
 			
 			var p = new NDesk.Options.OptionSet() {
-				{"l|limit=", v => limit = InOut.parse(v, limit)},
+				{"l|limit=", v => limit = InOut.Parse(v, limit)},
 				{"h|?|help|version", v => helpTokenFound = v != null},
 				{"enable-pause", v => pause = v != null},
 				{"disable-pause", v => pause = v == null},
@@ -34,15 +35,16 @@ namespace dsr
 				{"disable-totals", v => includeTotals = v == null},
 				{"raw-file-length", v => rawSize = v != null},
 				{"top-file-count", v => fileCountReport = v != null},
+				{"parallel", v => parallelProcessing = v != null},
 				{"license", v => licenseTokenFound = v != null},
 			};
 			
 			List<string> extraArgs = p.Parse(args);
 			
-			subject = InOut.parseSubject(extraArgs);
+			subject = InOut.ParseSubject(extraArgs);
 			
 			if (licenseTokenFound) {
-				Console.WriteLine(InOut.getLicenseText());
+				Console.WriteLine(InOut.GetLicenseText());
 			} else if (helpTokenFound || subject == null) {
 				Func<string, string, KeyValuePair<string, string>> mk = (c, d) => new KeyValuePair<string, string>(c, d);
 				
@@ -55,6 +57,7 @@ namespace dsr
 					mk("--top-file-count", "enables top file count report (default: off)"),
 					mk("--enable-totals, --disable-totals", "toggles totals section (default: enabled)"),
 					mk("--raw-file-length", "output file/directory size in bytes"),
+					mk("--parallel", "use multi-thread processing to speed things up"),
 					mk("--license", "shows license"),
 					mk("--help, -h, --version, /?", "this help page")
 				};
@@ -86,12 +89,12 @@ namespace dsr
 				
 				var reports = new List<IReportGenerator>{};
 				
-				Action<bool, Func<IReportGenerator>> _insrep = (b, r) => {if (b) reports.Add(r());};
+				Action<bool, Func<IReportGenerator>> insrep = (b, r) => {if (b) reports.Add(r());};
 				
-				_insrep(defaults || largestFiles, () => new Report.Generator.ReportLargestFiles(rq, limit));
-				_insrep(defaults || largestDirs, () => new Report.Generator.ReportLargestDirectories(rq, limit));
-				_insrep(fileCountReport, () => new Report.Generator.ReportTopFileCount(rq, limit));
-				_insrep(includeTotals, () => new Report.Generator.ReportTotals(rq));
+				insrep(defaults || largestFiles, () => new Report.Generator.ReportLargestFiles(rq, limit));
+				insrep(defaults || largestDirs, () => new Report.Generator.ReportLargestDirectories(rq, limit));
+				insrep(fileCountReport, () => new Report.Generator.ReportTopFileCount(rq, limit));
+				insrep(includeTotals, () => new Report.Generator.ReportTotals(rq));
 				
 				int fileSizeColumnWidth = 0;
 				int totalCaptionColumnWidth = 0;
@@ -102,27 +105,27 @@ namespace dsr
 				
 				Action<Report.StateModel.ReportResponse> outputMembers = (resp) => {
 					if (resp.Members.Count > 0) {
-						InOut.outputStdSection(resp.Name, resp.Members.Select(x => {
+						InOut.OutputStdSection(resp.Name, resp.Members.Select(x => {
 						return String.Format("{1," + (fileSizeColumnWidth).ToString() + "} {2}", "", x.FormattedNumber, x.Path);
 						}));
 					}
 				};
 				
-				var roller = MainRecursiveLoop.make();
+				var roller = MainRecursiveLoop.Make(parallelProcessing);
 				
 				rq.Timer.Start();
 				roller(subject, reports, filters, trace);
-				var results = reports.Select(x => x.getResult()).ToList();
+				var results = reports.Select(x => x.GetResult()).ToList();
 				
 				fileSizeColumnWidth = results.Select(x => x.Members).Concat().Select(x => x.FormattedNumber.Length).DefaultIfEmpty(0).Max();
 				totalCaptionColumnWidth = results.Select(x => x.Totals).Concat().Select(x => x.Key.Length).DefaultIfEmpty(0).Max();
 				results.ForEach(outputMembers);
 				
 				if (includeTotals) {
-					InOut.outputStdSection("", results.Select(x => genTotalLines(x)).Concat());
+					InOut.OutputStdSection("", results.Select(x => genTotalLines(x)).Concat());
 				}
 				
-				trace.Warning.ForEach(x => Console.WriteLine("WARNING: " + x));
+				trace.Warnings.ForEach(x => Console.WriteLine("WARNING: " + x));
 			}
 			
 			if (pause) {

@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Threading.Tasks;
 using dsr.Report;
 
 namespace dsr
 {
 	static class MainRecursiveLoop
 	{
-		public static Action<string, List<IReportGenerator>, List<IReportFilter>, ITrace> make()
+		public static Action<string, List<IReportGenerator>, List<IReportFilter>, ITrace> Make(bool parallelProcessing)
 		{
 			Action<string, List<IReportGenerator>, List<IReportFilter>, ITrace> self = null!;
 			
@@ -16,52 +17,54 @@ namespace dsr
 			{
 				try
 				{
-					foreach (var path in Directory.GetFiles(subject))
+					Util.ForEach(parallelProcessing, Directory.GetFiles(subject), (path) =>
 					{
 						try
 						{
 							var file = new FileInfo(path);
-							
-							if (Util.filter(file, filters, (x, y) => x.filterFile(y)))
+
+							if (Util.Filter(file, filters, (x, y) => x.FilterFile(y)))
 							{
-								reports.ForEach(x => x.handleFile(file));
+								reports.ForEach(x => x.HandleFile(file));
 							}
 						}
 						catch (Exception ex)
 						{
-							trace.pushWarning("Cannot get file info of [" + path + "] with error [" + ex.GetType().Name + " - " + ex.Message + "]");
+							trace.Warning("Cannot get file info of [" + path + "] with error [" + ex.GetType().Name +
+							              " - " + ex.Message + "]");
 						}
-					}
+					});
 				}
 				catch
 				{
-					trace.pushWarning("Cannot list files of [" + subject + "]");
+					trace.Warning("Cannot list files of [" + subject + "]");
 				}
 				
 				try
 				{
-					foreach (var path in Directory.GetDirectories(subject))
+					Util.ForEach(parallelProcessing, Directory.GetDirectories(subject), (path) =>
 					{
 						try
 						{
 							var dir = new DirectoryInfo(path);
-							
-							if (Util.filter(dir, filters, (x, y) => x.filterDirectory(y)))
+
+							if (Util.Filter(dir, filters, (x, y) => x.FilterDirectory(y)))
 							{
-								reports.ForEach(x => x.handleDirectory(dir));
-								
+								reports.ForEach(x => x.HandleDirectory(dir));
+
 								self(dir.FullName, reports, filters, trace);
 							}
 						}
 						catch (Exception ex)
 						{
-							trace.pushWarning("Cannot get directory info of [" + path + "] with error [" + ex.GetType().Name + " - " + ex.Message + "]");
+							trace.Warning("Cannot get directory info of [" + path + "] with error [" +
+							              ex.GetType().Name + " - " + ex.Message + "]");
 						}
-					}
+					});
 				}
 				catch
 				{
-					trace.pushWarning("Cannot list subdirectories of [" + subject + "]");
+					trace.Warning("Cannot list subdirectories of [" + subject + "]");
 				}
 			};
 			

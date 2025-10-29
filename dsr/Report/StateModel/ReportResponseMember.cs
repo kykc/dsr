@@ -14,9 +14,9 @@ namespace dsr.Report.StateModel
 			FormattedNumber = formattedNumber;
 		}
 		
-		public static ReportResponseMember make(FileInfo f, bool humanize = true)
+		public static ReportResponseMember Make(FileInfo f, bool humanize = true)
 		{
-			return new ReportResponseMember(f.FullName, InOut.humanizeFilesize((ulong)f.Length, humanize));
+			return new ReportResponseMember(f.FullName, InOut.HumanizeFilesize((ulong)f.Length, humanize));
 		}
 	}
 }

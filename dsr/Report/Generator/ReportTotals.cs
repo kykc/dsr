@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using dsr.Report.StateModel;
 
 namespace dsr.Report.Generator
@@ -17,24 +18,24 @@ namespace dsr.Report.Generator
 			_rq = rq;
 		}
 		
-		public void handleFile(FileInfo f)
+		public void HandleFile(FileInfo f)
 		{
-			_fileCount++;
-			_totalSize += (ulong)f.Length;
+			Interlocked.Increment(ref _fileCount);
+			Interlocked.Add(ref _totalSize, (ulong)f.Length);
 		}
 		
-		public void handleDirectory(DirectoryInfo d)
+		public void HandleDirectory(DirectoryInfo d)
 		{
-			_directoryCount++;
+			Interlocked.Increment(ref _directoryCount);
 		}
 		
-		public ReportResponse getResult()
+		public ReportResponse GetResult()
 		{
 			var resp = new ReportResponse();
 			resp.Totals.Add(new KeyValuePair<string, string>("Total file count", _fileCount.ToString()));
 			resp.Totals.Add(new KeyValuePair<string, string>("Total directory count", _directoryCount.ToString()));
-			resp.Totals.Add(new KeyValuePair<string, string>("Total size", InOut.humanizeFilesize(_totalSize, !_rq.RawSizeFormat)));
-			resp.Totals.Add(new KeyValuePair<string, string>("Total running time", InOut.humanizeSeconds(_rq.Timer.Elapsed)));
+			resp.Totals.Add(new KeyValuePair<string, string>("Total size", InOut.HumanizeFilesize(_totalSize, !_rq.RawSizeFormat)));
+			resp.Totals.Add(new KeyValuePair<string, string>("Total running time", InOut.HumanizeSeconds(_rq.Timer.Elapsed)));
 			
 			return resp;
 		}

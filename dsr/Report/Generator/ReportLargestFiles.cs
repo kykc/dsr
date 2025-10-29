@@ -2,7 +2,7 @@
 using dsr.Report.StateModel;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace dsr.Report.Generator
 {
@@ -16,29 +16,26 @@ namespace dsr.Report.Generator
 		
 		private uint _limit = 10;
 		private ReportRequest _rq;
-		private List<FileInfo> _db = new List<FileInfo>();
+		private ConcurrentBag<FileInfo> _db = new();
 		
 		private ReportResponse _result = new ReportResponse();
 
-		public void handleFile(FileInfo f)
+		public void HandleFile(FileInfo f)
 		{
 			_db.Add(f);
-			
-			_db = _db
-				.OrderByDescending(x => x.Length)
-				.Take((int)_limit)
-				.ToList();
 		}
 		
-		public void handleDirectory(DirectoryInfo d)
+		public void HandleDirectory(DirectoryInfo d)
 		{
 		}
 		
-		public ReportResponse getResult()
-		{			
+		public ReportResponse GetResult()
+		{
 			_result.Name = "Largest files";
 			_result.Members = _db
-				.Select(x => ReportResponseMember.make(x, !_rq.RawSizeFormat))
+				.OrderByDescending(x => x.Length)
+				.Take((int)_limit)
+				.Select(x => ReportResponseMember.Make(x, !_rq.RawSizeFormat))
 				.ToList();
 			
 			return _result;

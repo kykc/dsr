@@ -5,25 +5,25 @@ namespace dsr.Report.StateModel
 {
 	class SimpleTrace : ITrace
 	{
-		private List<string> _error = new List<string>();
-		private List<string> _warning = new List<string>();
-		private List<string> _info = new List<string>();
+		private readonly List<string> _error = new();
+		private readonly List<string> _warning = new();
+		private readonly List<string> _info = new();
 		
-		public void pushError(string error)
+		public void Error(string error)
 		{
 			_error.Add(error);
 		}
 		
-		public void pushWarning(string warning)
+		public void Warning(string warning)
 		{
 			_warning.Add(warning);
 		}
 		
-		public void pushInfo(string info)
+		public void Log(string info)
 		{
 			_info.Add(info);
 		}
 		
-		public List<string> Warning{get {return _warning;}}
+		public IEnumerable<string> Warnings => _warning;
 	}
 }
