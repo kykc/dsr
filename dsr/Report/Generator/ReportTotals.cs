@@ -36,6 +36,7 @@ namespace dsr.Report.Generator
 			resp.Totals.Add(new KeyValuePair<string, string>("Total directory count", _directoryCount.ToString()));
 			resp.Totals.Add(new KeyValuePair<string, string>("Total size", InOut.HumanizeFilesize(_totalSize, !_rq.RawSizeFormat)));
 			resp.Totals.Add(new KeyValuePair<string, string>("Total running time", InOut.HumanizeSeconds(_rq.Timer.Elapsed)));
+			resp.Totals.Add(new KeyValuePair<string, string>("Peak memory usage", InOut.HumanizeFilesize((ulong)System.Diagnostics.Process.GetCurrentProcess().PeakWorkingSet64, !_rq.RawSizeFormat)));
 			
 			return resp;
 		}

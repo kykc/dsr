@@ -18,11 +18,29 @@ namespace dsr.Report.Generator
 		private ReportRequest _rq;
 		private ConcurrentBag<FileInfo> _db = new();
 		
-		private ReportResponse _result = new ReportResponse();
+		private ReportResponse _result = new();
 
 		public void HandleFile(FileInfo f)
 		{
-			_db.Add(f);
+			uint largerThanMe = 0;
+
+			foreach (var x in _db)
+			{
+				if (x.Length > f.Length)
+				{
+					largerThanMe++;
+				}
+
+				if (largerThanMe >= _limit)
+				{
+					break;
+				}
+			}
+
+			if (largerThanMe < _limit)
+			{
+				_db.Add(f);
+			}
 		}
 		
 		public void HandleDirectory(DirectoryInfo d)
